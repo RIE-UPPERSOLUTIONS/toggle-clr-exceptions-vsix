@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable">
+  <Extern href="stdidcmd.h"/>
+  <Extern href="vsshlids.h"/>
+
+  <Commands package="{b12a5383-9a4d-4f8f-8474-8ad8f3000001}">
+    <Groups>
+      <Group guid="{6f5246c9-aec4-40f4-a4e7-9a7f0c000002}" id="MyMenuGroup" priority="0x0600">
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_DEBUG"/>
+      </Group>
+    </Groups>
+
+    <Buttons>
+      <Button guid="{6f5246c9-aec4-40f4-a4e7-9a7f0c000002}" id="0x0100" priority="0x0100" type="Button">
+        <Parent guid="{6f5246c9-aec4-40f4-a4e7-9a7f0c000002}" id="MyMenuGroup" />
+        <Strings>
+          <ButtonText>Toggle CLR Exception Break Mode</ButtonText>
+        </Strings>
+      </Button>
+    </Buttons>
+  </Commands>
+
+  <Symbols>
+    <GuidSymbol name="guidToggleClrExceptionsPackage" value="{b12a5383-9a4d-4f8f-8474-8ad8f3000001}" />
+    <GuidSymbol name="guidToggleClrExceptionsCommandSet" value="{6f5246c9-aec4-40f4-a4e7-9a7f0c000002}">
+      <IDSymbol name="MyMenuGroup" value="0x1020" />
+      <IDSymbol name="cmdidToggleClrExceptions" value="0x0100" />
+    </GuidSymbol>
+  </Symbols>
+</CommandTable>
