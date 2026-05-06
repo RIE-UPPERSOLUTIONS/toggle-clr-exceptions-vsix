@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Linq;
 using System.Threading.Tasks;
@@ -58,25 +57,24 @@ namespace ToggleClrExceptions
                 return;
             }
 
-            var allEntries = ReadAllExceptionsRecursive(clrGroup);
-            if (allEntries.Count == 0)
+            var exceptions = clrGroup.Cast<ExceptionSetting>().ToList();
+            if (exceptions.Count == 0)
             {
                 await SetStatusBarAsync("Toggle CLR Exceptions: no CLR exception entries found.");
                 return;
             }
 
-            bool isCurrentlyAllThrown = allEntries.All(x => x.BreakWhenThrown);
+            bool isCurrentlyAllThrown = exceptions.All(x => x.BreakWhenThrown);
+            bool nextBreakWhenThrown = !isCurrentlyAllThrown;
 
-            if (!isCurrentlyAllThrown)
+            foreach (var exception in exceptions)
             {
-                SetBreakWhenThrownRecursive(clrGroup, true);
-                await SetStatusBarAsync("CLR exceptions: break on all thrown.");
+                exception.BreakWhenThrown = nextBreakWhenThrown;
             }
-            else
-            {
-                SetBreakWhenThrownRecursive(clrGroup, false);
-                await SetStatusBarAsync("CLR exceptions: default CLR behavior restored.");
-            }
+
+            await SetStatusBarAsync(nextBreakWhenThrown
+                ? "CLR exceptions: break on all thrown."
+                : "CLR exceptions: default CLR behavior restored.");
         }
 
         private static ExceptionSettings? FindClrExceptionGroup(Debugger debugger)
@@ -94,71 +92,6 @@ namespace ToggleClrExceptions
             }
 
             return null;
-        }
-
-        private static List<ExceptionSetting> ReadAllExceptionsRecursive(ExceptionSettings group)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            var results = new List<ExceptionSetting>();
-            CollectExceptions(group, results);
-            return results;
-        }
-
-        private static void CollectExceptions(ExceptionSettings group, List<ExceptionSetting> results)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            foreach (ExceptionSetting ex in group)
-            {
-                results.Add(ex);
-            }
-
-            try
-            {
-                var subGroupsObj = group.GetType().GetProperty("ExceptionSettings")?.GetValue(group);
-                if (subGroupsObj is System.Collections.IEnumerable subGroups)
-                {
-                    foreach (var sg in subGroups)
-                    {
-                        if (sg is ExceptionSettings nested)
-                        {
-                            CollectExceptions(nested, results);
-                        }
-                    }
-                }
-            }
-            catch
-            {
-            }
-        }
-
-        private static void SetBreakWhenThrownRecursive(ExceptionSettings group, bool value)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            foreach (ExceptionSetting ex in group)
-            {
-                ex.BreakWhenThrown = value;
-            }
-
-            try
-            {
-                var subGroupsObj = group.GetType().GetProperty("ExceptionSettings")?.GetValue(group);
-                if (subGroupsObj is System.Collections.IEnumerable subGroups)
-                {
-                    foreach (var sg in subGroups)
-                    {
-                        if (sg is ExceptionSettings nested)
-                        {
-                            SetBreakWhenThrownRecursive(nested, value);
-                        }
-                    }
-                }
-            }
-            catch
-            {
-            }
         }
 
         private async Task SetStatusBarAsync(string message)
