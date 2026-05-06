@@ -45,8 +45,8 @@ namespace ToggleClrExceptions
                 .FileAndForget("ToggleClrExceptions/Execute");
         }
 
-        private async Task ExecuteAsync()
-        {
+       private async Task ExecuteAsync()
+       {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
             DTE2 dte = await _package.GetServiceAsync(typeof(DTE)) as DTE2;
@@ -58,50 +58,34 @@ namespace ToggleClrExceptions
 
             ExceptionSettings clrGroup = FindClrExceptionGroup(dte.Debugger);
             if (clrGroup == null)
-            {
-                await SetStatusBarAsync("Toggle CLR Exceptions: CLR exception group not found.");
-                return;
-            }
+        {
+            await SetStatusBarAsync("Toggle CLR Exceptions: CLR exception group not found.");
+            return;
+        }
 
-            ExceptionSetting[] exceptions = clrGroup.Cast<ExceptionSetting>().ToArray();
-            if (exceptions.Length == 0)
-            {
-                await SetStatusBarAsync("Toggle CLR Exceptions: no CLR exception entries found.");
-                return;
-            }
+        ExceptionSetting[] exceptions = clrGroup.Cast<ExceptionSetting>().ToArray();
+        if (exceptions.Length == 0)
+        {
+            await SetStatusBarAsync("Toggle CLR Exceptions: no CLR exception entries found.");
+            return;
+        }
 
-            bool isCurrentlyAllThrown = exceptions.All(static x => x.BreakWhenThrown);
-            if (!isCurrentlyAllThrown)
-            {
-                foreach (ExceptionSetting exceptionSetting in exceptions)
-                {
-                    exceptionSetting.BreakWhenThrown = true;
-                }
+        bool isCurrentlyAllThrown = exceptions.All(static x => x.BreakWhenThrown);
 
-                await SetStatusBarAsync("CLR exceptions: break on all thrown.");
-                return;
-            }
-
-            if (dte.Commands != null)
-            {
-                try
-                {
-                    dte.ExecuteCommand("DebuggerContextMenus.ExceptionSettingsWindow.RestoreDefaults");
-                    await SetStatusBarAsync("CLR exceptions: defaults restored.");
-                    return;
-                }
-                catch
-                {
-                    // Fall through to manual fallback below.
-                }
-            }
-
+        if (!isCurrentlyAllThrown)
+        {
             foreach (ExceptionSetting exceptionSetting in exceptions)
             {
-                exceptionSetting.BreakWhenThrown = false;
+                exceptionSetting.BreakWhenThrown = true;
             }
 
-            await SetStatusBarAsync("CLR exceptions: default CLR behavior restored.");
+            await SetStatusBarAsync("CLR exceptions: break on all thrown.");
+        }
+        else
+        {
+            dte.ExecuteCommand("DebuggerContextMenus.ExceptionSettingsWindow.RestoreDefaults");
+            await SetStatusBarAsync("CLR exceptions: defaults restored.");
+        }
         }
 
         private static ExceptionSettings FindClrExceptionGroup(Debugger debugger)
