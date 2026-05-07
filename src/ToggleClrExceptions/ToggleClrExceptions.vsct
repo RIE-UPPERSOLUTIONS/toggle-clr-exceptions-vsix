@@ -18,6 +18,16 @@
         </Strings>
       </Button>
     </Buttons>
+
+    <KeyBindings>
+      <KeyBinding guid="{6f5246c9-aec4-40f4-a4e7-9a7f0c000002}"
+                  id="0x0100"
+                  editor="guidVSStd97"
+                  key1="E"
+                  mod1="CONTROL"
+                  key2="B"
+                  mod2="CONTROL" />
+    </KeyBindings>
   </Commands>
 
   <Symbols>
